@@ -1,0 +1,56 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MNISTApp", "MNISTApp", "{682D501F-05CB-4097-83F6-5A96EF3E255C}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "MNISTApp.Shared", "MNISTApp\MNISTApp.Shared\MNISTApp.Shared.shproj", "{012B1DC4-9F0F-4EB8-8B02-3A21D178E04C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MNISTApp.WindowsPhone", "MNISTApp\MNISTApp.WindowsPhone\MNISTApp.WindowsPhone.csproj", "{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}"
+EndProject
+Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		MNISTApp\MNISTApp.Shared\MNISTApp.Shared.projitems*{012b1dc4-9f0f-4eb8-8b02-3a21d178e04c}*SharedItemsImports = 13
+		MNISTApp\MNISTApp.Shared\MNISTApp.Shared.projitems*{64869b1d-e747-4791-a2b5-9a76ed3ca0a2}*SharedItemsImports = 4
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|ARM = Debug|ARM
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|Any CPU = Release|Any CPU
+		Release|ARM = Release|ARM
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|ARM.ActiveCfg = Debug|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|ARM.Build.0 = Debug|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|ARM.Deploy.0 = Debug|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|x86.ActiveCfg = Debug|x86
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|x86.Build.0 = Debug|x86
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Debug|x86.Deploy.0 = Debug|x86
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|ARM.ActiveCfg = Release|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|ARM.Build.0 = Release|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|ARM.Deploy.0 = Release|ARM
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|x64.ActiveCfg = Release|Any CPU
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|x86.ActiveCfg = Release|x86
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|x86.Build.0 = Release|x86
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2}.Release|x86.Deploy.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{012B1DC4-9F0F-4EB8-8B02-3A21D178E04C} = {682D501F-05CB-4097-83F6-5A96EF3E255C}
+		{64869B1D-E747-4791-A2B5-9A76ED3CA0A2} = {682D501F-05CB-4097-83F6-5A96EF3E255C}
+	EndGlobalSection
+EndGlobal
