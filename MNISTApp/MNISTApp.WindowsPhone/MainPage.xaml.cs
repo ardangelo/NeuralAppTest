@@ -87,43 +87,6 @@ namespace MNISTApp
 			await about.ShowAsync();
         }
 
-		private void ReverseAppBarButton_Click(object sender, RoutedEventArgs e) {
-			WriteableBitmap[] rnums = new WriteableBitmap[10];
-			var rw = new List<Matrix<double>>();
-			var rb = new List<Vector<double>>();
-			foreach (var w in NeuralSettings.weights) {
-				rw.Add(w);
-			}
-			foreach (var b in NeuralSettings.biases) {
-				rb.Add(b);
-			}
-
-			rw.Reverse();
-			for (int i = 0; i < rw.Count; i++ ) {
-				rw[i] = rw[i].Transpose();
-			}
-			rb.Reverse();
-			Network revnet = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, rw, rb, null);
-
-			for (int i = 0; i < 10; i++) {
-				Vector<double> v = Vector<double>.Build.DenseOfArray(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-				v[i] = 1.0;
-
-				var output = revnet.Output(v);
-				rnums[i] = new WriteableBitmap(28, 28);
-				byte[] pixels = new byte[784];
-
-				for (int j = 0; j < 784; j++) {
-					pixels[j] = (byte)(((int)(output[j]) << 16) | ((int)(output[j]) << 8) | ((int)(output[j]) << 0) | (0xFF << 24));
-				}
-
-				rnums[i].PixelBuffer.AsStream().Write(pixels, 0, 784);
-				
-			}
-
-			Frame.Navigate(typeof(ReversePage), rnums);
-		}
-
         private void DrawingCanvas_PointerPressed(object sender, PointerRoutedEventArgs e) {
             timer.Stop();
             currentPoint = e.GetCurrentPoint(DrawingCanvas); // captures the first point
