@@ -94,20 +94,9 @@ namespace MNISTApp {
 		protected override void OnNavigatedTo(NavigationEventArgs e) {
 			this.navigationHelper.OnNavigatedTo(e);
 			
-			int maxHeight = 150;
-			Windows.UI.Xaml.Shapes.Rectangle[] rects = { zeroBar, oneBar, twoBar, threeBar, fourBar, fiveBar, sixBar, sevenBar, eightBar, nineBar };
+			int res = (int)(e.Parameter);
 
-			double[] prob = (double[])(e.Parameter);
-			System.Diagnostics.Debug.WriteLine(prob);
-			int num = 0;
-			for (int i = 0; i < prob.Length; i++) {
-				if (prob[i] > prob[num]) {
-					num = i;
-				}
-				rects[i].Height = prob[i] * maxHeight;
-			}
-
-			numText.Text = num.ToString();
+			numText.Text = res.ToString();
 		}
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e) {

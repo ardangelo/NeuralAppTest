@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 using MathNet.Numerics.LinearAlgebra;
 using NeuralNet;
+
 using Windows.UI.Input;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI;
@@ -24,6 +25,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Popups;
 using Microsoft.FSharp.Core;
+using System.Net.Http;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -47,25 +49,35 @@ namespace MNISTApp
 			
             timer.Interval = TimeSpan.FromSeconds(1);
 
+			HttpClient client = new HttpClient();
+			client.BaseAddress = new System.Uri(APISettings.baseUrl);
+			client.DefaultRequestHeaders.Add("Accept", "application/json");
+			client.DefaultRequestHeaders.Add("Authorization", "Bearer " + APISettings.key);
+						
             EventHandler<object> ehl = null;
             ehl = async (s, args) => {
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine("stopped drawing");
 
+				this.progressRing.IsActive = true;
+
 				byte[] bytes = await CanvasToBytes(DrawingCanvas);
-				Vector<double> a = PixelsToVector(bytes);
+				var request = PixelsToJSONRequest(bytes);
 
-				//int recognized = network.Output(a).MaximumIndex();
-				var prob = network.ProbabilityDistribution(a).ToArray();
+				var response = await client.PostAsync(APISettings.requestUrl, new StringContent(request, System.Text.Encoding.UTF8, "application/json"));
+				var result = await response.Content.ReadAsStringAsync();
+				int recognized = Int32.Parse(result.Substring(result.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
 
-				Frame.Navigate(typeof(ResultPage), prob);
+				this.progressRing.IsActive = false;
+				
+				Frame.Navigate(typeof(ResultPage), recognized);
                 DrawingCanvas.Children.Clear();
             };
             timer.Tick += new EventHandler<object>(ehl);
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
         }
-
+		
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -125,13 +137,23 @@ namespace MNISTApp
 			return pixels;
 		}
 
-		private Vector<double> PixelsToVector(byte[] pixels) {
+		private string PixelsToJSONRequest(byte[] pixels) {
 			double[] vals = new double[784];
 			for (int i = 0; i < vals.Length; i++) {
 				vals[i] = (double)(pixels[i * 4]);
 			}
 
-			return Vector<double>.Build.DenseOfArray(vals);
+			var request = "{\"Inputs\":{\"input1\":{\"ColumnNames\":[\"Label\",";
+			for (int i = 0; i < 783; i++) {
+				request += "\"f" + i + "\",";
+			}
+			request += "\"f783\"],\"Values\":[[\"0\",";
+			for (int i = 0; i < 783; i++) {
+				request += "\"" + vals[i] + "\",";
+			}
+			request += "\"" + vals[783] + "\"]]}},\"GlobalParameters\": {}}}";
+
+			return request;
 		}
     }
 }
