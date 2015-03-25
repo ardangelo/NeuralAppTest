@@ -92,9 +92,6 @@
 <member name="">
 
 </member>
-<member name="">
-
-</member>
 <member name="T:NeuralNet.Activations">
 
 </member>
@@ -107,13 +104,16 @@
 <member name="">
 
 </member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
+<member name="">
+
+</member>
 <member name="T:NeuralNet.Costs">
-
-</member>
-<member name="">
-
-</member>
-<member name="">
 
 </member>
 <member name="">
@@ -141,6 +141,9 @@
 
 </member>
 <member name="T:NeuralNet.Learn">
+
+</member>
+<member name="">
 
 </member>
 <member name="">

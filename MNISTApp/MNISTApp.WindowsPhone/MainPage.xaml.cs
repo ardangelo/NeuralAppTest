@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Popups;
+using Microsoft.FSharp.Core;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -41,9 +42,9 @@ namespace MNISTApp
         {
             this.InitializeComponent();
 
-            network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases);
+            network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases, null);
             timer = new DispatcherTimer();
-
+			
             timer.Interval = TimeSpan.FromSeconds(1);
 
             EventHandler<object> ehl = null;
@@ -54,9 +55,10 @@ namespace MNISTApp
 				byte[] bytes = await CanvasToBytes(DrawingCanvas);
 				Vector<double> a = PixelsToVector(bytes);
 
-				int recognized = network.Output(a).MaximumIndex();
+				//int recognized = network.Output(a).MaximumIndex();
+				var prob = network.ProbabilityDistribution(a).ToArray();
 
-				Frame.Navigate(typeof(ResultPage), recognized);
+				Frame.Navigate(typeof(ResultPage), prob);
                 DrawingCanvas.Children.Clear();
             };
             timer.Tick += new EventHandler<object>(ehl);
@@ -84,6 +86,43 @@ namespace MNISTApp
 			var about = new MessageDialog("Neural.NET demo\n\nAndrew D'Angelo <dangeloandrew@outlook.com>\nhttp://andrew.uni.cx\nhttps://github.com/excelangue");
 			await about.ShowAsync();
         }
+
+		private void ReverseAppBarButton_Click(object sender, RoutedEventArgs e) {
+			WriteableBitmap[] rnums = new WriteableBitmap[10];
+			var rw = new List<Matrix<double>>();
+			var rb = new List<Vector<double>>();
+			foreach (var w in NeuralSettings.weights) {
+				rw.Add(w);
+			}
+			foreach (var b in NeuralSettings.biases) {
+				rb.Add(b);
+			}
+
+			rw.Reverse();
+			for (int i = 0; i < rw.Count; i++ ) {
+				rw[i] = rw[i].Transpose();
+			}
+			rb.Reverse();
+			Network revnet = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, rw, rb, null);
+
+			for (int i = 0; i < 10; i++) {
+				Vector<double> v = Vector<double>.Build.DenseOfArray(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
+				v[i] = 1.0;
+
+				var output = revnet.Output(v);
+				rnums[i] = new WriteableBitmap(28, 28);
+				byte[] pixels = new byte[784];
+
+				for (int j = 0; j < 784; j++) {
+					pixels[j] = (byte)(((int)(output[j]) << 16) | ((int)(output[j]) << 8) | ((int)(output[j]) << 0) | (0xFF << 24));
+				}
+
+				rnums[i].PixelBuffer.AsStream().Write(pixels, 0, 784);
+				
+			}
+
+			Frame.Navigate(typeof(ReversePage), rnums);
+		}
 
         private void DrawingCanvas_PointerPressed(object sender, PointerRoutedEventArgs e) {
             timer.Stop();
@@ -118,8 +157,7 @@ namespace MNISTApp
 
 			IBuffer pixelBuffer = await rtb.GetPixelsAsync();
 			byte[] pixels = pixelBuffer.ToArray();
-			System.Diagnostics.Debug.WriteLine(rtb.PixelWidth);
-			System.Diagnostics.Debug.WriteLine(rtb.PixelHeight);
+			System.Diagnostics.Debug.WriteLine(pixels);
 
 			return pixels;
 		}

@@ -20,6 +20,7 @@
 
     <Page.BottomAppBar>
         <CommandBar>
+            <AppBarButton Icon="Switch"  Label="Reverse" Click="ReverseAppBarButton_Click" />
             <AppBarButton Icon="ContactInfo"  Label="About" Click="AppBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>
