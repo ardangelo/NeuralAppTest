@@ -23,20 +23,15 @@
 
         <!--TODO: Content should be placed within the following grid-->
         <Grid Grid.Row="1" x:Name="ContentRoot" >
-            <TextBlock x:Name="numText" HorizontalAlignment="Left" Margin="10,10,0,276" TextWrapping="Wrap" Text="7" VerticalAlignment="Center" Height="380" Width="380" FontSize="380" TextAlignment="Center"/>
+            <Pivot>
+                <PivotItem Header="neural.net">
+                    <TextBlock x:Name="neuralText" HorizontalAlignment="Left" TextWrapping="Wrap" Text="7" VerticalAlignment="Center" Height="600" Width="380" FontSize="500" TextAlignment="Center"/>
+                </PivotItem>
+                <PivotItem Header="azure">
+                    <TextBlock x:Name="azureText" HorizontalAlignment="Left" TextWrapping="Wrap" Text="8" VerticalAlignment="Center" Height="600" Width="380" FontSize="500" TextAlignment="Center"/>
+                </PivotItem>
+            </Pivot>
 
-            <Rectangle x:Name="zeroBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="8,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="oneBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="47,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="twoBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="86,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="threeBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="125,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="fourBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="164,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="fiveBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="203,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="sixBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="242,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="sevenBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="281,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="eightBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="320,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-            <Rectangle x:Name="nineBar" Fill="#FFF4F4F5" HorizontalAlignment="Left" Height="100" Margin="359,460,0,0" Stroke="Black" VerticalAlignment="Top" Width="28"/>
-
-            <TextBlock HorizontalAlignment="Left" Margin="10,404,0,0" TextWrapping="Wrap" Text="0 1 2 3 4 5 6 7 8 9" VerticalAlignment="Top" FontSize="48" Height="48" Width="380"/>
         </Grid>
     </Grid>
 </Page>

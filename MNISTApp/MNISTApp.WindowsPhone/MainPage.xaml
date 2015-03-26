@@ -9,18 +9,20 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Background="Black">
-        <Border BorderThickness="2" BorderBrush="White" Background="Black" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="380" Height="380">
-            <Canvas x:Name="DrawingCanvas" PointerPressed="DrawingCanvas_PointerPressed" PointerMoved="DrawingCanvas_PointerMoved" PointerReleased="DrawingCanvas_PointerReleased">
-                <Canvas.Background>
-                    <SolidColorBrush Color="Black" />
-                </Canvas.Background>
-            </Canvas>
-        </Border>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+            <Border BorderThickness="2" BorderBrush="White" Background="Black" HorizontalAlignment="Center"  VerticalAlignment="Center" Width="380" Height="380">
+                <Canvas x:Name="DrawingCanvas" PointerPressed="DrawingCanvas_PointerPressed" PointerMoved="DrawingCanvas_PointerMoved" PointerReleased="DrawingCanvas_PointerReleased">
+                    <Canvas.Background>
+                        <SolidColorBrush Color="Black" />
+                    </Canvas.Background>
+                </Canvas>
+            </Border>
+            <ProgressRing x:Name="progressRing" HorizontalAlignment="Center" VerticalAlignment="Center" Height="100" Width="100" Margin="150,0"/>
+        </StackPanel>
     </Grid>
 
     <Page.BottomAppBar>
         <CommandBar>
-            <AppBarButton Icon="Switch"  Label="Reverse" Click="ReverseAppBarButton_Click" />
             <AppBarButton Icon="ContactInfo"  Label="About" Click="AppBarButton_Click" />
         </CommandBar>
     </Page.BottomAppBar>

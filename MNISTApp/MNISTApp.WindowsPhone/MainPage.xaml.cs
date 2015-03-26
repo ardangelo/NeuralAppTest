@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Navigation;
 
 using MathNet.Numerics.LinearAlgebra;
 using NeuralNet;
+
 using Windows.UI.Input;
 using Windows.UI.Xaml.Shapes;
 using Windows.UI;
@@ -24,6 +25,7 @@ using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
 using Windows.UI.Popups;
 using Microsoft.FSharp.Core;
+using System.Net.Http;
 
 // The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -42,30 +44,49 @@ namespace MNISTApp
         {
             this.InitializeComponent();
 
-            network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases, null);
+			network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases, null);
             timer = new DispatcherTimer();
 			
             timer.Interval = TimeSpan.FromSeconds(1);
 
+			HttpClient AzureClient = new HttpClient();
+			AzureClient.BaseAddress = new System.Uri(APISettings.AzureBaseUrl);
+			AzureClient.DefaultRequestHeaders.Add("Accept", "application/json");
+			AzureClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + APISettings.AzureKey);
+						
             EventHandler<object> ehl = null;
             ehl = async (s, args) => {
                 timer.Stop();
                 System.Diagnostics.Debug.WriteLine("stopped drawing");
 
+				this.progressRing.IsActive = true;
+
 				byte[] bytes = await CanvasToBytes(DrawingCanvas);
-				Vector<double> a = PixelsToVector(bytes);
 
-				//int recognized = network.Output(a).MaximumIndex();
-				var prob = network.ProbabilityDistribution(a).ToArray();
+				int azureRecognized = 0;
+				var azureRequest = PixelsToJSON(bytes);
+				var azureResponse = await AzureClient.PostAsync(APISettings.AzureRequestUrl, new StringContent(azureRequest, System.Text.Encoding.UTF8, "application/json"));
 
-				Frame.Navigate(typeof(ResultPage), prob);
+				if (azureResponse.StatusCode == System.Net.HttpStatusCode.OK) {
+					var azureResult = await azureResponse.Content.ReadAsStringAsync();
+					azureRecognized = Int32.Parse(azureResult.Substring(azureResult.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
+				} else {
+					azureRecognized = -1;
+				}
+
+				Vector<double> a = PixelsToVector(bytes); 
+				int nnRecognized = network.Output(a).MaximumIndex(); 
+
+				this.progressRing.IsActive = false;
+				
+				Frame.Navigate(typeof(ResultPage), new int[] {nnRecognized, azureRecognized});
                 DrawingCanvas.Children.Clear();
             };
             timer.Tick += new EventHandler<object>(ehl);
 
             this.NavigationCacheMode = NavigationCacheMode.Required;
         }
-
+		
         /// <summary>
         /// Invoked when this page is about to be displayed in a Frame.
         /// </summary>
@@ -86,43 +107,6 @@ namespace MNISTApp
 			var about = new MessageDialog("Neural.NET demo\n\nAndrew D'Angelo <dangeloandrew@outlook.com>\nhttp://andrew.uni.cx\nhttps://github.com/excelangue");
 			await about.ShowAsync();
         }
-
-		private void ReverseAppBarButton_Click(object sender, RoutedEventArgs e) {
-			WriteableBitmap[] rnums = new WriteableBitmap[10];
-			var rw = new List<Matrix<double>>();
-			var rb = new List<Vector<double>>();
-			foreach (var w in NeuralSettings.weights) {
-				rw.Add(w);
-			}
-			foreach (var b in NeuralSettings.biases) {
-				rb.Add(b);
-			}
-
-			rw.Reverse();
-			for (int i = 0; i < rw.Count; i++ ) {
-				rw[i] = rw[i].Transpose();
-			}
-			rb.Reverse();
-			Network revnet = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, rw, rb, null);
-
-			for (int i = 0; i < 10; i++) {
-				Vector<double> v = Vector<double>.Build.DenseOfArray(new double[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 });
-				v[i] = 1.0;
-
-				var output = revnet.Output(v);
-				rnums[i] = new WriteableBitmap(28, 28);
-				byte[] pixels = new byte[784];
-
-				for (int j = 0; j < 784; j++) {
-					pixels[j] = (byte)(((int)(output[j]) << 16) | ((int)(output[j]) << 8) | ((int)(output[j]) << 0) | (0xFF << 24));
-				}
-
-				rnums[i].PixelBuffer.AsStream().Write(pixels, 0, 784);
-				
-			}
-
-			Frame.Navigate(typeof(ReversePage), rnums);
-		}
 
         private void DrawingCanvas_PointerPressed(object sender, PointerRoutedEventArgs e) {
             timer.Stop();
@@ -162,13 +146,33 @@ namespace MNISTApp
 			return pixels;
 		}
 
-		private Vector<double> PixelsToVector(byte[] pixels) {
+		private string PixelsToJSON(byte[] pixels) {
 			double[] vals = new double[784];
 			for (int i = 0; i < vals.Length; i++) {
 				vals[i] = (double)(pixels[i * 4]);
 			}
 
-			return Vector<double>.Build.DenseOfArray(vals);
+			var request = "{\"Inputs\":{\"input1\":{\"ColumnNames\":[\"Label\",";
+			for (int i = 0; i < 783; i++) {
+				request += "\"f" + i + "\",";
+			}
+			request += "\"f783\"],\"Values\":[[\"0\",";
+			for (int i = 0; i < 783; i++) {
+				request += "\"" + vals[i] + "\",";
+			}
+			request += "\"" + vals[783] + "\"]]}},\"GlobalParameters\": {}}}";
+
+			return request;
 		}
+
+		private Vector<double> PixelsToVector(byte[] pixels) { 
+			double[] vals = new double[784]; 
+			for (int i = 0; i < vals.Length; i++) { 
+				vals[i] = (double)(pixels[i * 4]); 
+			}
+			
+			return Vector<double>.Build.DenseOfArray(vals); 
+		} 
+
     }
 }
