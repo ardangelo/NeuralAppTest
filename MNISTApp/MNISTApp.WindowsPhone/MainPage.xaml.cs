@@ -53,9 +53,6 @@ namespace MNISTApp
 			AzureClient.BaseAddress = new System.Uri(APISettings.AzureBaseUrl);
 			AzureClient.DefaultRequestHeaders.Add("Accept", "application/json");
 			AzureClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + APISettings.AzureKey);
-
-			HttpClient NeuralNetClient = new HttpClient();
-			NeuralNetClient.BaseAddress = new System.Uri(APISettings.NeuralBaseUrl);
 						
             EventHandler<object> ehl = null;
             ehl = async (s, args) => {
@@ -69,17 +66,20 @@ namespace MNISTApp
 				int azureRecognized = 0;
 				var azureRequest = PixelsToJSON(bytes);
 				var azureResponse = await AzureClient.PostAsync(APISettings.AzureRequestUrl, new StringContent(azureRequest, System.Text.Encoding.UTF8, "application/json"));
-				var azureResult = await azureResponse.Content.ReadAsStringAsync();
-				azureRecognized = Int32.Parse(azureResult.Substring(azureResult.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
 
-				int nnRecognized = 0;
-				var nnRequest = PixelsToCSV(bytes);
-				var nnResponse = await NeuralNetClient.PostAsync(APISettings.NeuralRequestUrl, new StringContent("5"));
-				System.Diagnostics.Debug.WriteLine(await nnResponse.Content.ReadAsStringAsync());
-				
+				if (azureResponse.StatusCode == System.Net.HttpStatusCode.OK) {
+					var azureResult = await azureResponse.Content.ReadAsStringAsync();
+					azureRecognized = Int32.Parse(azureResult.Substring(azureResult.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
+				} else {
+					azureRecognized = -1;
+				}
+
+				Vector<double> a = PixelsToVector(bytes); 
+				int nnRecognized = network.Output(a).MaximumIndex(); 
+
 				this.progressRing.IsActive = false;
 				
-				Frame.Navigate(typeof(ResultPage), nnRecognized * 10 + azureRecognized);
+				Frame.Navigate(typeof(ResultPage), new int[] {nnRecognized, azureRecognized});
                 DrawingCanvas.Children.Clear();
             };
             timer.Tick += new EventHandler<object>(ehl);
@@ -165,13 +165,14 @@ namespace MNISTApp
 			return request;
 		}
 
-		private string PixelsToCSV(byte[] pixels) {
-			var request = "";
-			for (int i = 0; i < 784; i++) {
-				request += ((double)(pixels[i * 4])).ToString() + ",";
+		private Vector<double> PixelsToVector(byte[] pixels) { 
+			double[] vals = new double[784]; 
+			for (int i = 0; i < vals.Length; i++) { 
+				vals[i] = (double)(pixels[i * 4]); 
 			}
+			
+			return Vector<double>.Build.DenseOfArray(vals); 
+		} 
 
-			return request;
-		}
     }
 }

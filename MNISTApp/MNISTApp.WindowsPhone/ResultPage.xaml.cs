@@ -94,10 +94,15 @@ namespace MNISTApp {
 		protected override void OnNavigatedTo(NavigationEventArgs e) {
 			this.navigationHelper.OnNavigatedTo(e);
 			
-			int res = (int)(e.Parameter);
+			int[] res = (int[])(e.Parameter);
 
-			neuralText.Text = (res / 10).ToString();
-			azureText.Text = (res % 10).ToString();
+			neuralText.Text = res[0].ToString();
+
+			if (res[1] != -1) {
+				azureText.Text = res[1].ToString();
+			} else {
+				azureText.Text = "!";
+			}
 		}
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e) {
