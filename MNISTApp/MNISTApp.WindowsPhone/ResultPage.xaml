@@ -23,7 +23,15 @@
 
         <!--TODO: Content should be placed within the following grid-->
         <Grid Grid.Row="1" x:Name="ContentRoot" >
-            <TextBlock x:Name="numText" HorizontalAlignment="Left" Margin="10,88,0,96" TextWrapping="Wrap" Text="7" VerticalAlignment="Center" Height="500" Width="380" FontSize="500" TextAlignment="Center"/>
+            <Pivot>
+                <PivotItem Header="neural.net">
+                    <TextBlock x:Name="neuralText" HorizontalAlignment="Left" TextWrapping="Wrap" Text="7" VerticalAlignment="Center" Height="600" Width="380" FontSize="500" TextAlignment="Center"/>
+                </PivotItem>
+                <PivotItem Header="azure">
+                    <TextBlock x:Name="azureText" HorizontalAlignment="Left" TextWrapping="Wrap" Text="8" VerticalAlignment="Center" Height="600" Width="380" FontSize="500" TextAlignment="Center"/>
+                </PivotItem>
+            </Pivot>
+
         </Grid>
     </Grid>
 </Page>

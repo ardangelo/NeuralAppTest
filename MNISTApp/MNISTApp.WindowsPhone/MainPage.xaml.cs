@@ -44,15 +44,18 @@ namespace MNISTApp
         {
             this.InitializeComponent();
 
-            network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases, null);
+			network = new Network(NeuralNet.Activations.Sigmoid.Activation, NeuralNet.Activations.Sigmoid.Prime, NeuralSettings.weights, NeuralSettings.biases, null);
             timer = new DispatcherTimer();
 			
             timer.Interval = TimeSpan.FromSeconds(1);
 
-			HttpClient client = new HttpClient();
-			client.BaseAddress = new System.Uri(APISettings.baseUrl);
-			client.DefaultRequestHeaders.Add("Accept", "application/json");
-			client.DefaultRequestHeaders.Add("Authorization", "Bearer " + APISettings.key);
+			HttpClient AzureClient = new HttpClient();
+			AzureClient.BaseAddress = new System.Uri(APISettings.AzureBaseUrl);
+			AzureClient.DefaultRequestHeaders.Add("Accept", "application/json");
+			AzureClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + APISettings.AzureKey);
+
+			HttpClient NeuralNetClient = new HttpClient();
+			NeuralNetClient.BaseAddress = new System.Uri(APISettings.NeuralBaseUrl);
 						
             EventHandler<object> ehl = null;
             ehl = async (s, args) => {
@@ -62,15 +65,21 @@ namespace MNISTApp
 				this.progressRing.IsActive = true;
 
 				byte[] bytes = await CanvasToBytes(DrawingCanvas);
-				var request = PixelsToJSONRequest(bytes);
 
-				var response = await client.PostAsync(APISettings.requestUrl, new StringContent(request, System.Text.Encoding.UTF8, "application/json"));
-				var result = await response.Content.ReadAsStringAsync();
-				int recognized = Int32.Parse(result.Substring(result.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
+				int azureRecognized = 0;
+				var azureRequest = PixelsToJSON(bytes);
+				var azureResponse = await AzureClient.PostAsync(APISettings.AzureRequestUrl, new StringContent(azureRequest, System.Text.Encoding.UTF8, "application/json"));
+				var azureResult = await azureResponse.Content.ReadAsStringAsync();
+				azureRecognized = Int32.Parse(azureResult.Substring(azureResult.Length - "7\"]]}}}}".Length, 1)); //dont need to parse no json
 
+				int nnRecognized = 0;
+				var nnRequest = PixelsToCSV(bytes);
+				var nnResponse = await NeuralNetClient.PostAsync(APISettings.NeuralRequestUrl, new StringContent("5"));
+				System.Diagnostics.Debug.WriteLine(await nnResponse.Content.ReadAsStringAsync());
+				
 				this.progressRing.IsActive = false;
 				
-				Frame.Navigate(typeof(ResultPage), recognized);
+				Frame.Navigate(typeof(ResultPage), nnRecognized * 10 + azureRecognized);
                 DrawingCanvas.Children.Clear();
             };
             timer.Tick += new EventHandler<object>(ehl);
@@ -137,7 +146,7 @@ namespace MNISTApp
 			return pixels;
 		}
 
-		private string PixelsToJSONRequest(byte[] pixels) {
+		private string PixelsToJSON(byte[] pixels) {
 			double[] vals = new double[784];
 			for (int i = 0; i < vals.Length; i++) {
 				vals[i] = (double)(pixels[i * 4]);
@@ -152,6 +161,15 @@ namespace MNISTApp
 				request += "\"" + vals[i] + "\",";
 			}
 			request += "\"" + vals[783] + "\"]]}},\"GlobalParameters\": {}}}";
+
+			return request;
+		}
+
+		private string PixelsToCSV(byte[] pixels) {
+			var request = "";
+			for (int i = 0; i < 784; i++) {
+				request += ((double)(pixels[i * 4])).ToString() + ",";
+			}
 
 			return request;
 		}

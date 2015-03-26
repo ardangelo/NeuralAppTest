@@ -96,7 +96,8 @@ namespace MNISTApp {
 			
 			int res = (int)(e.Parameter);
 
-			numText.Text = res.ToString();
+			neuralText.Text = (res / 10).ToString();
+			azureText.Text = (res % 10).ToString();
 		}
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e) {
